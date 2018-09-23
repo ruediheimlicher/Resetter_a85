@@ -90,7 +90,7 @@ void slaveinit(void)
    TWI_DDR |= (1<<LOOPLEDPIN);
    
    TWI_DDR |= (1<<RELAISPIN);       // Ausgang: Schaltet Reset-Relais fuer Zeit RESETDELAY
-   TWI_PORT &= ~(1<<RELAISPIN);     // LO	
+   TWI_PORT &= ~(1<<RELAISPIN);     // LO   
    
    TWI_DDR |= (1<<OSZIPIN);        // Ausgang
    TWI_PORT |= (1<<OSZIPIN);       // HI
@@ -134,17 +134,7 @@ void WDT_Init(void)
 ISR(WDT_vect)
 {
    PORTB |= (1<<RELAISPIN);
-   ii++;
-   if (ii >= 4)
-   { 
-      ii = 0;
-      //TWI_PORT &=~(1<<RELAISPIN);
-      //PORTB ^= (1<<RELAISPIN);
-   
-   }
-   
-   //WDT_Init();
-}
+ }
 
 
 /* Initializes the hardware timer  */
@@ -205,9 +195,9 @@ int main (void)
    {
       
       TWI_PORT &= ~(1<<REPORTPIN);
-      _delay_ms(50);
+      _delay_ms(100);
       TWI_PORT |= (1<<REPORTPIN);
-      _delay_ms(50);
+      _delay_ms(100);
    }
  
    
@@ -230,47 +220,55 @@ int main (void)
          }
          
       }
-      if (TWI_PIN & (1<<WEBSERVERPIN))
+      if (TEST)
       {
-         if (wdtcounter < 8)
+         if (TWI_PIN & (1<<WEBSERVERPIN) )
          {
-            //PORTB ^= (1<<RELAISPIN);
-            wdtcounter++;
-            //TWI_PORT &=~(1<<OSZIPIN);
-            _delay_ms(50);
+            while (wdtcounter < 8) // Zeit verspielen -> wdt ausloesen
+            {
+               //PORTB ^= (1<<RELAISPIN);
+               wdtcounter++;
+               //TWI_PORT &=~(1<<OSZIPIN);
+               _delay_ms(100);
+            }
+            //TWI_PORT |=(1<<OSZIPIN);
+            //wdt_reset();
+            //else
+            {
+               //TWI_PORT &=~(1<<RELAISPIN);
+               wdtcounter=0;
+            }
+            
+            /*
+             if (ii>5)
+             {
+             TWI_PORT &=~(1<<RELAISPIN);
+             ii=0;
+             }
+             */
+            
          }
-         //TWI_PORT |=(1<<OSZIPIN);
-         //wdt_reset();
          else
          {
-            //TWI_PORT &=~(1<<RELAISPIN);
+            wdt_reset();
             wdtcounter=0;
-         }
-      
-         /*
-         if (ii>5)
-         {
             TWI_PORT &=~(1<<RELAISPIN);
-            ii=0;
          }
-     */
-      
       }
-     else
+      else 
       {
          wdt_reset();
-         wdtcounter=0;
-         TWI_PORT &=~(1<<RELAISPIN);
       }
-       
+      
        /*
        Checken, ob SDA zu lange auf gleichem Wert blieb oder ein Reset vom Webserver verlangt wird
        */
       
-      /*
+      
       if (statusflag & (1<<CHECK))// Timer gibt Takt der Abfrage an, 0.5s
       {
          // Reset durch Webserver: WEBSERVERPIN abfragen: Reset wenn LO
+         
          if ((TWI_PIN & (1 << WEBSERVERPIN))) // all OK
          {
  
@@ -292,9 +290,9 @@ int main (void)
                }
             }//  not WAIT
          }// Reset durch Webserver starten
-         */
+         
       
-      /*
+      
          // impulsdauer von SDA checken
          if (PINB & (1<<SDAPIN)) // HI, darf nicht zu lange dauern, 3 min
          {
@@ -361,7 +359,7 @@ int main (void)
        
          statusflag &= ~(1<<CHECK);
       } // if check
-       */
+       
    }//while
    return 0;
 }
