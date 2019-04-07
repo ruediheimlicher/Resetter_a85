@@ -26,11 +26,11 @@
 
 // **********************************************************************
 // **********************************************************************
-#define SDA_LO_MAX            60 // counter, bis Reset infolge SDA_LO gesetzt wird (*0.25s)
+#define SDA_LO_MAX            80 // counter, bis Reset infolge SDA_LO gesetzt wird (*0.25s)
 #define SDA_HI_MAX            640 // counter, bis Reset infolge SDA_HI gesetzt wird
 // **********************************************************************
 // **********************************************************************
-
+#define TEST 0
 
 #define TWI_PORT		PORTB
 #define TWI_PIN		PINB
@@ -311,7 +311,7 @@ int main (void)
                }
             }
          }
-         else // LO, sollte nicht zu lange dauern, 20s
+         else // LO, sollte nicht zu lange dauern, 2s
          {
             if (!(statusflag & (1<<WAIT)))
             {
